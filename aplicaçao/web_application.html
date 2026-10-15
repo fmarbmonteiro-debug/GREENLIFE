@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GreenLife - Plantas, Jardinagem e Floricultura</title>
+    <!-- Carregando Tailwind CSS via CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregando FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col justify-between">
+
+    <header class="bg-emerald-800 text-white shadow-md sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="navegarPara('inicio')">
+                <i class="fa-solid fa-leaf text-emerald-300 text-2xl"></i>
+                <span class="text-xl font-bold tracking-tight">Green<span class="text-emerald-300">Life</span></span>
+            </div>
+            <nav class="hidden md:flex space-x-6 text-sm font-medium">
+                <button onclick="navegarPara('inicio')" id="btn-nav-inicio" class="transition hover:text-emerald-200 text-emerald-300 border-b-2 border-emerald-300 pb-1">Ecrã Inicial</button>
+                <button onclick="navegarPara('detalhes')" id="btn-nav-detalhes" class="transition hover:text-emerald-200 pb-1">Detalhes (Screen 2)</button>
+                <button onclick="navegarPara('jardim')" id="btn-nav-jardim" class="transition hover:text-emerald-200 pb-1">O Meu Jardim (Screen 3)</button>
+                <button onclick="navegarPara('loja')" id="btn-nav-loja" class="transition hover:text-emerald-200 pb-1 relative">
+                    Carrinho / Loja (Screen 4) 
+                    <span id="badge-carrinho" class="absolute -top-2 -right-4 bg-amber-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                </button>
+            </nav>
+            <div class="md:hidden flex items-center space-x-4">
+                <button onclick="navegarPara('loja')" class="relative text-xl">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                    <span id="badge-carrinho-mob" class="absolute -top-2 -right-2 bg-amber-500 text-white text-xs font-bold rounded-full h-4 w-4 flex items-center justify-center">0</span>
+                </button>
+                <button onclick="toggleMenuMobile()" class="text-xl focus:outline-none"><i class="fa-solid fa-bars"></i></button>
+            </div>
+        </div>
+        <div id="menu-mobile" class="hidden md:hidden bg-emerald-900 px-4 pt-2 pb-4 space-y-2 border-t border-emerald-700">
+            <button onclick="navegarPara('inicio'); toggleMenuMobile();" class="block w-full text-left py-2 hover:bg-emerald-800 px-2 rounded">Ecrã Inicial</button>
+            <button onclick="navegarPara('detalhes'); toggleMenuMobile();" class="block w-full text-left py-2 hover:bg-emerald-800 px-2 rounded">Detalhes (Screen 2)</button>
+            <button onclick="navegarPara('jardim'); toggleMenuMobile();" class="block w-full text-left py-2 hover:bg-emerald-800 px-2 rounded">O Meu Jardim (Screen 3)</button>
+            <button onclick="navegarPara('loja'); toggleMenuMobile();" class="block w-full text-left py-2 hover:bg-emerald-800 px-2 rounded">Carrinho / Loja (Screen 4)</button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- 1. ECRÃ INICIAL -->
+        <section id="ecra-inicio" class="space-y-8">
+            <div class="bg-gradient-to-r from-emerald-700 to-teal-600 rounded-3xl p-8 md:p-12 text-white shadow-xl flex flex-col md:flex-row items-center justify-between">
+                <div class="space-y-4 max-w-xl">
+                    <span class="bg-emerald-600 text-emerald-100 text-xs font-semibold px-3 py-1 rounded-full uppercase tracking-wider">Plantas & Jardinagem</span>
+                    <h1 class="text-3xl md:text-5xl font-extrabold tracking-tight">Cultura e Cuidados com as Plantas</h1>
+                    <p class="text-emerald-100 text-base md:text-lg">Plataforma interativa para consultar espécies, gerir o seu jardim pessoal e encomendar produtos de floricultura.</p>
+                    <div class="pt-2 flex flex-wrap gap-4">
+                        <button onclick="navegarPara('loja')" class="bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl shadow transition">Explorar Loja</button>
+                        <button onclick="navegarPara('detalhes')" class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-xl backdrop-blur transition">Ver Cuidados</button>
+                    </div>
+                </div>
+                <div class="mt-8 md:mt-0">
+                    <img src="https://placehold.co/400x300/065f46/34d399?text=GreenLife+App" alt="GreenLife" class="rounded-2xl shadow-lg border-4 border-white/10 object-cover max-h-64">
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center"><i class="fa-solid fa-magnifying-glass text-emerald-600 mr-2"></i> Pesquisa Rápida de Plantas</h3>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input type="text" id="input-pesquisa" placeholder="Ex: Monstera, Suculenta, Orquídea..." class="flex-grow border border-slate-300 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button onclick="executarPesquisa()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-6 py-3 rounded-xl transition">Pesquisar</button>
+                </div>
+                <div id="caixa-resultado-pesquisa" class="mt-4 hidden p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-sm"></div>
+            </div>
+
+            <div>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-slate-800">Plantas em Destaque</h2>
+                    <button onclick="navegarPara('loja')" class="text-emerald-700 hover:text-emerald-800 font-semibold text-sm flex items-center">Ver todas <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6" id="grid-destaques">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. SCREEN 2: DETALHES -->
+        <section id="ecra-detalhes" class="hidden space-y-8">
+            <div class="border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-extrabold text-slate-800">Screen 2: Detalhes e Cuidados da Planta</h2>
+                <p class="text-slate-600">Consulta detalhada sobre luz, rega, solo e temperatura ideal.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-4">
+                    <h3 class="font-bold text-slate-800 text-lg">Selecionar Espécie</h3>
+                    <div id="lista-seletor-detalhes" class="space-y-2">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-slate-100 space-y-6" id="painel-detalhes-planta">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. SCREEN 3: O MEU JARDIM -->
+        <section id="ecra-jardim" class="hidden space-y-8">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <h2 class="text-3xl font-extrabold text-slate-800">Screen 3: O Meu Jardim Pessoal</h2>
+                    <p class="text-slate-600">Consulte e gira o seu próprio jardim com acompanhamento de rega.</p>
+                </div>
+                <button onclick="abrirModalJardim()" class="bg-emerald-700 hover:bg-emerald-800 text-white font-medium px-5 py-2.5 rounded-xl shadow transition flex items-center gap-2">
+                    <i class="fa-solid fa-plus"></i> Adicionar Planta ao Jardim
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="grid-meu-jardim">
+                <!-- Preenchido via JavaScript -->
+            </div>
+        </section>
+
+        <!-- 4. SCREEN 4: CARRINHO DE COMPRAS / LOJA -->
+        <section id="ecra-loja" class="hidden space-y-8">
+            <div class="border-b border-slate-200 pb-4">
+                <h2 class="text-3xl font-extrabold text-slate-800">Screen 4: Carrinho de Compras & Loja</h2>
+                <p class="text-slate-600">Catálogo de floricultura, adição de produtos e cálculo automático do total.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 space-y-4">
+                    <h3 class="text-xl font-bold text-slate-800">Catálogo para Compra</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6" id="grid-catalogo-loja">
+                        <!-- Preenchido via JavaScript -->
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 space-y-6 h-fit sticky top-24">
+                    <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+                        <i class="fa-solid fa-cart-shopping text-emerald-600"></i> Carrinho de Compras
+                    </h3>
+                    <div id="container-itens-carrinho" class="space-y-3 max-h-64 overflow-y-auto divide-y divide-slate-100">
+                        <p class="text-sm text-slate-500 py-4 text-center">O seu carrinho está vazio.</p>
+                    </div>
+                    <div class="border-t border-slate-200 pt-4 space-y-2">
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Subtotal</span>
+                            <span id="carrinho-subtotal">0.00 €</span>
+                        </div>
+                        <div class="flex justify-between text-sm text-slate-600">
+                            <span>Portes de Envio</span>
+                            <span>3.50 €</span>
+                        </div>
+                        <div class="flex justify-between text-lg font-bold text-slate-900 border-t pt-2">
+                            <span>Total</span>
+                            <span id="carrinho-total" class="text-emerald-700">0.00 €</span>
+                        </div>
+                    </div>
+                    <button onclick="finalizarCompra()" id="btn-finalizar" disabled class="w-full bg-emerald-700 hover:bg-emerald-800 disabled:bg-slate-300 text-white font-bold py-3 rounded-xl transition shadow">Finalizar Encomenda</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <div id="modal-adicionar-planta" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center">
+                <h3 class="text-xl font-bold text-slate-800">Adicionar Planta ao Jardim</h3>
+                <button onclick="fecharModalJardim()" class="text-slate-400 hover:text-slate-600 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Nome / Apelido</label>
+                    <input type="text" id="modal-nome-planta" placeholder="Ex: A minha Monstera favorita" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Espécie</label>
+                    <select id="modal-select-especie" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        <!-- Preenchido via JavaScript -->
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-slate-700 mb-1">Data da Última Rega</label>
+                    <input type="date" id="modal-data-rega" class="w-full border border-slate-300 rounded-xl px-4 py-2.5 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 pt-4">
+                <button onclick="fecharModalJardim()" class="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl font-medium">Cancelar</button>
+                <button onclick="guardarNovaPlantaJardim()" class="px-5 py-2 bg-emerald-700 text-white font-medium rounded-xl hover:bg-emerald-800 shadow">Guardar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-notificacao" class="fixed bottom-5 right-5 bg-slate-900 text-white px-6 py-3 rounded-xl shadow-xl hidden z-50 transition transform duration-300">
+        <span id="toast-mensagem">Notificação</span>
+    </div>
+
+    <footer class="bg-slate-900 text-slate-400 mt-16 py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-leaf text-emerald-400 text-xl"></i>
+                <span class="text-white font-bold tracking-tight">GreenLife</span>
+            </div>
+            <p class="text-sm">© 2026 GreenLife. Aplicação Web de Plantas e Jardinagem.</p>
+            <div class="flex space-x-4 text-lg">
+                <span class="hover:text-white cursor-pointer"><i class="fa-brands fa-instagram"></i></span>
+                <span class="hover:text-white cursor-pointer"><i class="fa-brands fa-facebook"></i></span>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Base de dados local com todas as espécies
+        const baseDadosPlantas = [
+            {
+                id: 1,
+                nome: "Monstera Deliciosa",
+                categoria: "Interior / Decorativa",
+                preco: 24.99,
+                imagem: "https://placehold.co/400x300/065f46/34d399?text=Monstera",
+                luz: "Luz indireta brilhante (sem sol direto forte)",
+                rega: "A cada 7-10 dias (deixar o solo secar)",
+                solo: "Rico em matéria orgânica e bem drenado",
+                temperatura: "18°C a 27°C",
+                descricao: "Famosa pelas folhas fenestradas, traz um visual moderno e tropical."
+            },
+            {
+                id: 2,
+                nome: "Ficus Lyrata",
+                categoria: "Interior de Grande Porte",
+                preco: 29.99,
+                imagem: "https://placehold.co/400x300/047857/6ee7b7?text=Ficus+Lyrata",
+                luz: "Luz solar abundante e indireta",
+                rega: "Regar quando os 5cm superiores estiverem secos",
+                solo: "Arenoso e fértil com boa drenagem",
+                temperatura: "16°C a 24°C",
+                descricao: "Conhecida como figueira-lira, destaca-se pelas folhas grandes em forma de violino."
+            },
+            {
+                id: 3,
+                nome: "Suculenta Echeveria",
+                categoria: "Suculentas & Cactos",
+                preco: 8.50,
+                imagem: "https://placehold.co/400x300/059669/a7f3d0?text=Echeveria",
+                luz: "Pleno sol ou luz direta intensa",
+                rega: "A cada 15 dias (pouca água)",
+                solo: "Substrato específico para cactos",
+                temperatura: "15°C a 30°C",
+                descricao: "Forma rosetas perfeitas e armazena água nas folhas, exigindo pouca manutenção."
+            },
+            {
+                id: 4,
+                nome: "Orquídea Phalaenopsis",
+                categoria: "Flores & Floricultura",
+                preco: 18.00,
+                imagem: "https://placehold.co/400x300/10b981/d1fae5?text=Orquidea",
+                luz: "Luz difusa abundante",
+                rega: "Imersão semanal das raízes por 10 minutos",
+                solo: "Casca de pinho e fibra de coco",
+                temperatura: "20°C a 25°C",
+                descricao: "Flores elegantes e duradouras que alegram qualquer divisão da casa."
+            }
+        ];
+
+        // Estado do Jardim do Utilizador e Carrinho
+        let meuJardim = [
+            { id: 101, nome: "A minha Monstera da Sala", especieId: 1, ultimaRega: "2026-10-02" },
+            { id: 102, nome: "Suculenta da Varanda", especieId: 3, ultimaRega: "2026-09-28" }
+        ];
+
+        let carrinho = [];
+
+        // Inicialização garantida ao carregar a página
+        window.onload = function() {
+            renderizarDestaques();
+            renderizarSeletorDetalhes();
+            renderizarDetalhesPlanta(1);
+            renderizarMeuJardim();
+            renderizarCatalogoLoja();
+            popularSelectModal();
+        };
+
+        // Navegação entre ecrãs (SPA)
+        function navegarPara(ecraId) {
+            const ecras = ['inicio', 'detalhes', 'jardim', 'loja'];
+            ecras.forEach(e => {
+                const elSecao = document.getElementById(`ecra-${e}`);
+                const elBotao = document.getElementById(`btn-nav-${e}`);
+                if (e === ecraId) {
+                    elSecao.classList.remove('hidden');
+                    if (elBotao) elBotao.classList.add('text-emerald-300', 'border-b-2', 'border-emerald-300', 'pb-1');
+                } else {
+                    elSecao.classList.add('hidden');
+                    if (elBotao) elBotao.classList.remove('text-emerald-300', 'border-b-2', 'border-emerald-300', 'pb-1');
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function toggleMenuMobile() {
+            const menu = document.getElementById('menu-mobile');
+            menu.classList.toggle('hidden');
+        }
+
+        function mostrarToast(msg) {
+            const toast = document.getElementById('toast-notificacao');
+            const span = document.getElementById('toast-mensagem');
+            span.innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => { toast.classList.add('hidden'); }, 3000);
+        }
+
+        // 1. Ecrã Inicial
+        function renderizarDestaques() {
+            const grid = document.getElementById('grid-destaques');
+            grid.innerHTML = baseDadosPlantas.map(p => `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between hover:shadow-md transition">
+                    <img src="${p.imagem}" alt="${p.nome}" class="w-full h-44 object-cover">
+                    <div class="p-4 space-y-2">
+                        <span class="text-xs font-semibold text-emerald-600 uppercase">${p.categoria}</span>
+                        <h3 class="font-bold text-slate-800">${p.nome}</h3>
+                        <p class="text-xs text-slate-600 line-clamp-2">${p.descricao}</p>
+                    </div>
+                    <div class="p-4 pt-0 flex justify-between items-center">
+                        <span class="font-bold text-emerald-700">${p.preco.toFixed(2)} €</span>
+                        <button onclick="adicionarAoCarrinho(${p.id})" class="bg-emerald-700 hover:bg-emerald-800 text-white px-3 py-1.5 rounded-xl text-xs font-medium transition shadow-sm">Comprar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function executarPesquisa() {
+            const termo = document.getElementById('input-pesquisa').value.toLowerCase().trim();
+            const caixa = document.getElementById('caixa-resultado-pesquisa');
+            if (!termo) {
+                caixa.classList.add('hidden');
+                return;
+            }
+            const encontrados = baseDadosPlantas.filter(p => p.nome.toLowerCase().includes(termo) || p.categoria.toLowerCase().includes(termo));
+            if (encontrados.length > 0) {
+                caixa.innerHTML = `<strong>Resultados:</strong> ${encontrados.map(f => f.nome).join(', ')}`;
+            } else {
+                caixa.innerHTML = `Nenhuma planta encontrada para "${termo}".`;
+            }
+            caixa.classList.remove('hidden');
+        }
+
+        // 2. Screen 2: Detalhes
+        function renderizarSeletorDetalhes() {
+            const lista = document.getElementById('lista-seletor-detalhes');
+            lista.innerHTML = baseDadosPlantas.map(p => `
+                <button onclick="renderizarDetalhesPlanta(${p.id})" class="w-full text-left px-4 py-3 rounded-xl border border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition flex items-center justify-between group">
+                    <span class="font-medium text-slate-700 group-hover:text-emerald-900">${p.nome}</span>
+                    <i class="fa-solid fa-chevron-right text-xs text-slate-400 group-hover:text-emerald-600"></i>
+                </button>
+            `).join('');
+        }
+
+        function renderizarDetalhesPlanta(id) {
+            const p = baseDadosPlantas.find(item => item.id === id);
+            const painel = document.getElementById('painel-detalhes-planta');
+            painel.innerHTML = `
+                <div class="flex flex-col md:flex-row gap-6 items-center">
+                    <img src="${p.imagem}" alt="${p.nome}" class="w-full md:w-48 h-48 rounded-2xl object-cover shadow">
+                    <div class="space-y-2 flex-grow">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-3 py-1 rounded-full">${p.categoria}</span>
+                        <h3 class="text-2xl font-bold text-slate-800">${p.nome}</h3>
+                        <p class="text-slate-600 text-sm">${p.descricao}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
+                    <div class="bg-slate-50 p-4 rounded-xl space-y-1">
+                        <span class="text-xs font-bold text-amber-600 uppercase flex items-center gap-1"><i class="fa-solid fa-sun"></i> Luz</span>
+                        <p class="text-sm text-slate-700">${p.luz}</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl space-y-1">
+                        <span class="text-xs font-bold text-blue-600 uppercase flex items-center gap-1"><i class="fa-solid fa-droplet"></i> Rega</span>
+                        <p class="text-sm text-slate-700">${p.rega}</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl space-y-1">
+                        <span class="text-xs font-bold text-amber-900 uppercase flex items-center gap-1"><i class="fa-solid fa-seedling"></i> Solo</span>
+                        <p class="text-sm text-slate-700">${p.solo}</p>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl space-y-1">
+                        <span class="text-xs font-bold text-rose-600 uppercase flex items-center gap-1"><i class="fa-solid fa-temperature-half"></i> Temperatura</span>
+                        <p class="text-sm text-slate-700">${p.temperatura}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 3. Screen 3: O Meu Jardim
+        function renderizarMeuJardim() {
+            const grid = document.getElementById('grid-meu-jardim');
+            if (meuJardim.length === 0) {
+                grid.innerHTML = `<p class="col-span-full text-center text-slate-500 py-8">Ainda não tem nenhuma planta registada no jardim.</p>`;
+                return;
+            }
+            grid.innerHTML = meuJardim.map(item => {
+                const especie = baseDadosPlantas.find(s => s.id === Number(item.especieId)) || baseDadosPlantas[0];
+                return `
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
+                        <div class="p-6 space-y-3">
+                            <div class="flex justify-between items-start">
+                                <span class="bg-emerald-100 text-emerald-800 text-xs font-semibold px-2.5 py-1 rounded-full">${especie.nome}</span>
+                                <button onclick="removerPlantaJardim(${item.id})" class="text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                            <h3 class="text-xl font-bold text-slate-800">${item.nome}</h3>
+                            <div class="text-sm text-slate-600 space-y-1">
+                                <p><i class="fa-regular fa-calendar mr-2 text-emerald-600"></i> Última rega: ${item.ultimaRega}</p>
+                                <p><i class="fa-solid fa-droplet mr-2 text-blue-500"></i> Sugestão: ${especie.rega}</p>
+                            </div>
+                        </div>
+                        <div class="bg-slate-50 px-6 py-3 border-t border-slate-100 flex justify-between items-center">
+                            <span class="text-xs text-slate-500">Estado: Saudável 🌿</span>
+                            <button onclick="regarPlantaJardim(${item.id})" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-medium px-3 py-1.5 rounded-lg transition">Regar Hoje</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function abrirModalJardim() { document.getElementById('modal-adicionar-planta').classList.remove('hidden'); }
+        function fecharModalJardim() { document.getElementById('modal-adicionar-planta').classList.add('hidden'); }
+
+        function popularSelectModal() {
+            const select = document.getElementById('modal-select-especie');
+            select.innerHTML = baseDadosPlantas.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+        }
+
+        function guardarNovaPlantaJardim() {
+            const nome = document.getElementById('modal-nome-planta').value.trim();
+            const especieId = document.getElementById('modal-select-especie').value;
+            const ultimaRega = document.getElementById('modal-data-rega').value || new Date().toISOString().split('T')[0];
+            
+            if (!nome) {
+                mostrarToast("Introduza um nome para a planta.");
+                return;
+            }
+
+            meuJardim.push({ id: Date.now(), nome, especieId, ultimaRega });
+            fecharModalJardim();
+            renderizarMeuJardim();
+            mostrarToast("Planta adicionada ao seu jardim!");
+            document.getElementById('modal-nome-planta').value = '';
+        }
+
+        function removerPlantaJardim(id) {
+            meuJardim = meuJardim.filter(item => item.id !== id);
+            renderizarMeuJardim();
+            mostrarToast("Planta removida do jardim.");
+        }
+
+        function regarPlantaJardim(id) {
+            const p = meuJardim.find(i => i.id === id);
+            if (p) {
+                p.ultimaRega = new Date().toISOString().split('T')[0];
+                renderizarMeuJardim();
+                mostrarToast(`Regista rega para "${p.nome}"!`);
+            }
+        }
+
+        // 4. Screen 4: Carrinho e Loja
+        function renderizarCatalogoLoja() {
+            const grid = document.getElementById('grid-catalogo-loja');
+            grid.innerHTML = baseDadosPlantas.map(p => `
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden flex flex-col justify-between">
+                    <img src="${p.imagem}" alt="${p.nome}" class="w-full h-40 object-cover">
+                    <div class="p-4 space-y-2">
+                        <span class="text-xs font-semibold text-emerald-600 uppercase">${p.categoria}</span>
+                        <h4 class="font-bold text-slate-800">${p.nome}</h4>
+                        <span class="text-lg font-bold text-emerald-700 block">${p.preco.toFixed(2)} €</span>
+                    </div>
+                    <div class="p-4 pt-0">
+                        <button onclick="adicionarAoCarrinho(${p.id})" class="w-full bg-emerald-700 hover:bg-emerald-800 text-white font-medium py-2 rounded-xl text-sm transition shadow-sm">Adicionar ao Carrinho</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function adicionarAoCarrinho(id) {
+            const p = baseDadosPlantas.find(item => item.id === id);
+            const existente = carrinho.find(item => item.id === id);
+            if (existente) {
+                existente.qtd += 1;
+            } else {
+                carrinho.push({ ...p, qtd: 1 });
+            }
+            atualizarCarrinhoUI();
+            mostrarToast(`Adicionado "${p.nome}" ao carrinho!`);
+        }
+
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            atualizarCarrinhoUI();
+        }
+
+        function atualizarCarrinhoUI() {
+            const container = document.getElementById('container-itens-carrinho');
+            const subtotalEl = document.getElementById('carrinho-subtotal');
+            const totalEl = document.getElementById('carrinho-total');
+            const btnFinalizar = document.getElementById('btn-finalizar');
+            const badge = document.getElementById('badge-carrinho');
+            const badgeMob = document.getElementById('badge-carrinho-mob');
+
+            const totalQtd = carrinho.reduce((sum, item) => sum + item.qtd, 0);
+            badge.innerText = totalQtd;
+            badgeMob.innerText = totalQtd;
+
+            if (carrinho.length === 0) {
+                container.innerHTML = `<p class="text-sm text-slate-500 py-4 text-center">O seu carrinho está vazio.</p>`;
+                subtotalEl.innerText = "0.00 €";
+                totalEl.innerText = "0.00 €";
+                btnFinalizar.disabled = true;
+                return;
+            }
+
+            container.innerHTML = carrinho.map(item => `
+                <div class="py-3 flex justify-between items-center">
+                    <div>
+                        <h5 class="font-semibold text-slate-800 text-sm">${item.nome}</h5>
+                        <p class="text-xs text-slate-500">Qtd: ${item.qtd} x ${item.preco.toFixed(2)} €</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="font-bold text-sm text-emerald-700">${(item.qtd * item.preco).toFixed(2)} €</span>
+                        <button onclick="removerDoCarrinho(${item.id})" class="text-slate-400 hover:text-rose-600 text-sm"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const subtotal = carrinho.reduce((sum, item) => sum + (item.qtd * item.preco), 0);
+            const portes = 3.50;
+            const total = subtotal + portes;
+
+            subtotalEl.innerText = subtotal.toFixed(2) + " €";
+            totalEl.innerText = total.toFixed(2) + " €";
+            btnFinalizar.disabled = false;
+        }
+
+        function finalizarCompra() {
+            mostrarToast("Encomenda finalizada com sucesso! Obrigado pela preferência.");
+            carrinho = [];
+            atualizarCarrinhoUI();
+            navegarPara('inicio');
+        }
+    </script>
+</body>
+</html>
+```
+eof
+
+---
+
+### Resumo da Solução
+1. **Zero Ecrãs em Branco:** O código está completamente integrado num único ficheiro HTML autónomo, carregando o Tailwind CSS e o FontAwesome através de CDNs públicas estáveis.
+2. **4 Ecrãs Funcionais:** 
+   - **Início:** Apresentação da app, barra de pesquisa interativa e plantas em destaque.
+   - **Screen 2 (Detalhes):** Informações completas sobre luz, rega, solo e temperatura.
+   - **Screen 3 (O Meu Jardim):** Gestão pessoal com possibilidade de adicionar novas plantas e registar regas.
+   - **Screen 4 (Carrinho/Loja):** Catálogo de compras com adição dinâmica de produtos e cálculo automático de subtotais e totais.
