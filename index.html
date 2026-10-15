@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Armário de Plantas</title>
+<style>
+:root{--bg:#f3f7ef;--card:#fff;--tx:#1d281d;--mut:#667666;--pri:#2f7d4f;--pt:#fff;--bd:#d9e3d3;--late:#c0392b;--today:#b7791f;--ok:#2f7d4f;--soft:#e8f1e3;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#111812;--card:#1a241b;--tx:#e6efe5;--mut:#98a998;--pri:#4fb377;--pt:#08140c;--bd:#2c3a2e;--late:#ff7b6b;--today:#e5b04f;--ok:#5cc785;--soft:#223025;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#111812;--card:#1a241b;--tx:#e6efe5;--mut:#98a998;--pri:#4fb377;--pt:#08140c;--bd:#2c3a2e;--late:#ff7b6b;--today:#e5b04f;--ok:#5cc785;--soft:#223025;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--card);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--card);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:10px 16px}
+.logo{font-weight:700;font-size:18px}
+.wrap{max-width:900px;margin:0 auto;padding:16px}
+nav{display:flex;gap:6px;margin-bottom:16px;background:var(--soft);padding:4px;border-radius:12px}
+nav button{flex:1;border:0;background:none;color:var(--mut);padding:9px;border-radius:9px;font:inherit;font-weight:600;cursor:pointer}
+nav button.on{background:var(--card);color:var(--tx);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+.shelf{margin:20px 0 8px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);display:flex;align-items:center;gap:8px}
+.shelf::after{content:"";flex:1;height:2px;background:var(--bd);border-radius:2px}
+.plant .top{display:flex;gap:10px;align-items:center}
+.plant .em{font-size:34px;background:var(--soft);border-radius:12px;width:52px;height:52px;display:grid;place-items:center;flex:none}
+.plant h3{margin:0;font-size:17px}.plant small,.mut{color:var(--mut)}
+.badge{display:inline-block;padding:2px 9px;border-radius:99px;font-size:12px;font-weight:700;border:1px solid currentColor;margin:10px 0 8px}
+.late{color:var(--late)}.today{color:var(--today)}.ok{color:var(--ok)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button.b{border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 12px;border-radius:10px;font:inherit;font-size:14px;cursor:pointer}
+button.p{background:var(--pri);color:var(--pt);border-color:var(--pri);font-weight:600}
+button.d{color:var(--late)}
+input,select,textarea{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px;color:var(--mut)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}
+.stat{text-align:center}.stat b{display:block;font-size:26px}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20;display:grid;place-items:center;padding:16px;overflow:auto}
+.modal .card{width:100%;max-width:460px;max-height:92vh;overflow:auto}
+.auth{max-width:400px;margin:8vh auto;padding:16px}
+.auth h1{text-align:center;margin:0 0 4px}
+.err{color:var(--late);font-size:14px;min-height:20px;margin-top:8px}
+.av{display:flex;gap:6px;flex-wrap:wrap}.av button{font-size:24px;width:44px;height:44px;border-radius:12px;border:2px solid var(--bd);background:var(--card);cursor:pointer}.av button.on{border-color:var(--pri)}
+.li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd)}.li:last-child{border:0}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--tx);color:var(--bg);padding:10px 16px;border-radius:99px;z-index:30;display:none;font-size:14px}
+h2{margin:0 0 8px;font-size:19px}
+</style>
+</head>
+<body>
+<div id="root"></div><div id="modal"></div><div id="toast"></div>
+<script>
+// ===== Base de dados (localStorage, com fallback em memória) =====
+const mem={};
+const S={get(k){try{const v=localStorage.getItem(k);if(v)return JSON.parse(v)}catch(e){}return mem[k]??null},
+ set(k,v){mem[k]=v;try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}},
+ del(k){delete mem[k];try{localStorage.removeItem(k)}catch(e){}}};
+let db=S.get('ap_db')||{users:[],plants:[]};
+const save=()=>S.set('ap_db',db);
+let me=db.users.find(u=>u.id===S.get('ap_sess'))||null;
+let tab='shelf',q='',mode='login',authErr='';
+const EM=['🌿','🪴','🌵','🌸','🍀','🌻','🌺','🎍','🌱','🍃'];
+const AV=['🧑‍🌾','🌿','🪴','🌵','🌻','🐢','🦋','🐝'];
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>Math.random().toString(36).slice(2,10)+Date.now().toString(36);
+async function hash(p,salt){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(salt+p));return[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('')}
+// ===== Datas =====
+const ymd=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>ymd(new Date());
+const dt=s=>new Date(s+'T00:00');
+const addDays=(s,n)=>{const d=dt(s);d.setDate(d.getDate()+n);return ymd(d)};
+const diff=(a,b)=>Math.round((dt(b)-dt(a))/864e5);
+const fmt=s=>dt(s).toLocaleDateString('pt-PT',{day:'numeric',month:'short'});
+function info(p){const next=addDays(p.last,p.interval),d=diff(today(),next);
+ return{next,d,st:d<0?'late':d===0?'today':'ok',txt:d<0?`Em atraso ${-d} d`:d===0?'Regar hoje':`Rega em ${d} d`}}
+const mine=()=>db.plants.filter(p=>p.uid===me.id);
+function toast(m){const t=$('#toast');t.textContent=m;t.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>t.style.display='none',2200)}
+// ===== Vistas =====
+function render(){me?appView():authView()}
+function authView(){
+ const reg=mode==='reg';
+ $('#root').innerHTML=`<div class="auth card"><h1>🪴 Armário de Plantas</h1><p class="mut" style="text-align:center;margin-top:0">${reg?'Cria a tua conta':'Entra na tua conta'}</p>
+ <form id="af">${reg?'<label>Nome</label><input id="an" autocomplete="name" required>':''}
+ <label>Email</label><input id="ae" type="email" autocomplete="email" required>
+ <label>Palavra-passe${reg?' (mín. 6 caracteres)':''}</label><input id="ap" type="password" autocomplete="${reg?'new-password':'current-password'}" required>
+ <div class="err">${esc(authErr)}</div>
+ <button class="b p" style="width:100%;margin-top:6px;padding:12px">${reg?'Criar conta':'Entrar'}</button></form>
+ <p style="text-align:center;margin-bottom:0"><a href="#" data-a="sw">${reg?'Já tenho conta · Entrar':'Não tenho conta · Criar conta'}</a></p></div>`;
+ $('#af').onsubmit=async e=>{e.preventDefault();authErr='';
+  const email=$('#ae').value.trim().toLowerCase(),pw=$('#ap').value;
+  try{
+  if(reg){const name=$('#an').value.trim();
+   if(pw.length<6)authErr='A palavra-passe precisa de pelo menos 6 caracteres.';
+   else if(db.users.some(u=>u.email===email))authErr='Já existe uma conta com este email.';
+   else{const salt=uid();me={id:uid(),name,email,salt,hash:await hash(pw,salt),avatar:'🧑‍🌾',created:today()};db.users.push(me);save()}
+  }else{const u=db.users.find(u=>u.email===email);
+   if(!u||u.hash!==await hash(pw,u.salt))authErr='Email ou palavra-passe incorretos.';else me=u}
+  }catch(err){authErr='Não foi possível processar o pedido neste navegador.'}
+  if(authErr){me=null;return authView()}
+  S.set('ap_sess',me.id);tab='shelf';render()};
+}
+function appView(){
+ const ps=mine(),due=ps.filter(p=>info(p).d<=0).length;
+ $('#root').innerHTML=`<header><span class="logo">🪴 Armário de Plantas</span><button class="b" data-a="tab" data-id="profile">${esc(me.avatar)} ${esc(me.name.split(' ')[0])}</button></header>
+ <div class="wrap"><nav>${[['shelf','Armário'],['water','Rega'+(due?` (${due})`:'')],['profile','Perfil']].map(([k,l])=>`<button data-a="tab" data-id="${k}" class="${tab===k?'on':''}">${l}</button>`).join('')}</nav>
+ ${tab==='shelf'?shelfView(ps):tab==='water'?waterView(ps):profileView(ps)}</div>`;
+ const s=$('#sq');if(s){s.oninput=e=>{q=e.target.value;const pos=q.length;appView();const n=$('#sq');n.focus();n.setSelectionRange(pos,pos)}}
+}
+function card(p){const i=info(p);
+ return`<div class="card plant"><div class="top"><div class="em">${p.emoji}</div><div><h3>${esc(p.name)}</h3><small>${esc(p.species||'—')}</small></div></div>
+ <span class="badge ${i.st}">${i.txt}</span>
+ <div class="mut" style="font-size:13px;margin-bottom:10px">☀️ ${esc(p.light)} · 💧 a cada ${p.interval} d<br>Última rega: ${fmt(p.last)}${p.notes?`<br>📝 ${esc(p.notes)}`:''}</div>
+ <div class="row"><button class="b p" data-a="water" data-id="${p.id}">💧 Regar</button><button class="b" data-a="edit" data-id="${p.id}">Editar</button></div></div>`}
+function shelfView(ps){
+ const f=ps.filter(p=>(p.name+p.species+p.shelf).toLowerCase().includes(q.toLowerCase()));
+ const by={};f.forEach(p=>(by[p.shelf||'Sem prateleira']??=[]).push(p));
+ return`<div class="row" style="margin-bottom:8px"><input id="sq" placeholder="Pesquisar plantas…" value="${esc(q)}" style="flex:1;min-width:140px"><button class="b p" data-a="new">+ Registar planta</button></div>
+ ${!ps.length?'<div class="card" style="text-align:center;margin-top:16px"><p style="font-size:40px;margin:0">🌱</p><p class="mut">O teu armário está vazio. Regista a primeira planta!</p></div>':''}
+ ${Object.keys(by).sort().map(k=>`<div class="shelf">${esc(k)}</div><div class="grid">${by[k].map(card).join('')}</div>`).join('')}`}
+function waterView(ps){
+ const s=ps.map(p=>({p,...info(p)})).sort((a,b)=>a.d-b.d);
+ const due=s.filter(x=>x.d<=0),soon=s.filter(x=>x.d>0&&x.d<=7);
+ const hist=ps.flatMap(p=>(p.log||[]).map(d=>({d,n:p.name,e:p.emoji}))).sort((a,b)=>b.d.localeCompare(a.d)).slice(0,10);
+ const li=x=>`<div class="li"><span>${x.p.emoji} <b>${esc(x.p.name)}</b> <small class="${x.st}">${x.txt}</small></span><button class="b ${x.d<=0?'p':''}" data-a="water" data-id="${x.p.id}">💧 Regar</button></div>`;
+ return`<div class="card"><div class="row" style="justify-content:space-between"><h2>Para regar agora</h2>${due.length>1?'<button class="b p" data-a="waterAll">Regar todas</button>':''}</div>
+ ${due.length?due.map(li).join(''):'<p class="mut">Tudo regado. 🎉</p>'}</div>
+ <div class="card" style="margin-top:12px"><h2>Próximos 7 dias</h2>${soon.length?soon.map(x=>`<div class="li"><span>${x.p.emoji} ${esc(x.p.name)}</span><small class="mut">${fmt(x.next)} · em ${x.d} d</small></div>`).join(''):'<p class="mut">Nada agendado.</p>'}</div>
+ <div class="card" style="margin-top:12px"><h2>Histórico recente</h2>${hist.length?hist.map(h=>`<div class="li"><span>${h.e} ${esc(h.n)}</span><small class="mut">${fmt(h.d)}</small></div>`).join(''):'<p class="mut">Ainda sem regas registadas.</p>'}</div>`}
+function profileView(ps){
+ const w=ps.reduce((n,p)=>n+(p.log||[]).length,0);
+ return`<div class="stats"><div class="card stat"><b>${ps.length}</b><small class="mut">Plantas</small></div><div class="card stat"><b>${w}</b><small class="mut">Regas</small></div><div class="card stat"><b>${fmt(me.created)}</b><small class="mut">Membro desde</small></div></div>
+ <div class="card"><h2>Perfil</h2><label>Avatar</label><div class="av">${AV.map(a=>`<button data-a="avatar" data-id="${a}" class="${me.avatar===a?'on':''}">${a}</button>`).join('')}</div>
+ <label>Nome</label><input id="pn" value="${esc(me.name)}"><label>Email</label><input value="${esc(me.email)}" disabled>
+ <div class="row" style="margin-top:12px"><button class="b p" data-a="saveProfile">Guardar perfil</button></div></div>
+ <div class="card" style="margin-top:12px"><h2>Alterar palavra-passe</h2><label>Atual</label><input id="po" type="password" autocomplete="current-password"><label>Nova (mín. 6)</label><input id="pw" type="password" autocomplete="new-password">
+ <div class="row" style="margin-top:12px"><button class="b p" data-a="savePass">Alterar</button></div></div>
+ <div class="card" style="margin-top:12px"><div class="row"><button class="b" data-a="logout">Terminar sessão</button><button class="b d" data-a="delAcc">Eliminar conta</button></div></div>`}
+// ===== Modal de planta =====
+function plantModal(id){
+ const p=id?db.plants.find(x=>x.id===id):{name:'',species:'',shelf:'',light:'Luz indireta',interval:7,last:today(),emoji:'🌿',notes:''};
+ const shelves=[...new Set(mine().map(x=>x.shelf).filter(Boolean))];
+ $('#modal').innerHTML=`<div class="modal"><div class="card"><h2>${id?'Editar planta':'Registar planta'}</h2>
+ <label>Ícone</label><div class="av" id="ems">${EM.map(e=>`<button type="button" data-a="pickem" data-id="${e}" class="${p.emoji===e?'on':''}">${e}</button>`).join('')}</div>
+ <label>Nome</label><input id="fn" value="${esc(p.name)}" placeholder="Ex.: Costela-de-adão">
+ <label>Espécie</label><input id="fs" value="${esc(p.species)}" placeholder="Ex.: Monstera deliciosa">
+ <label>Prateleira / localização</label><input id="fh" list="shl" value="${esc(p.shelf)}" placeholder="Ex.: Prateleira 1"><datalist id="shl">${shelves.map(s=>`<option value="${esc(s)}">`).join('')}</datalist>
+ <div class="two"><div><label>Luz</label><select id="fl">${['Sol direto','Luz indireta','Sombra'].map(l=>`<option${l===p.light?' selected':''}>${l}</option>`).join('')}</select></div>
+ <div><label>Regar a cada (dias)</label><input id="fi" type="number" min="1" max="90" value="${p.interval}"></div></div>
+ <label>Última rega</label><input id="fd" type="date" max="${today()}" value="${p.last}">
+ <label>Notas</label><textarea id="fo" rows="2">${esc(p.notes)}</textarea>
+ <div class="err" id="fe"></div>
+ <div class="row" style="margin-top:8px"><button class="b p" data-a="savePlant" data-id="${id||''}">Guardar</button><button class="b" data-a="close">Cancelar</button>${id?`<button class="b d" data-a="delPlant" data-id="${id}" style="margin-left:auto">Eliminar</button>`:''}</div></div></div>`;
+ $('#modal').dataset.em=p.emoji}
+// ===== Ações =====
+const A={
+ sw(){mode=mode==='reg'?'login':'reg';authErr='';render()},
+ tab(id){tab=id;appView()},
+ new(){plantModal()},edit(id){plantModal(id)},close(){$('#modal').innerHTML=''},
+ pickem(id,t){$('#modal').dataset.em=id;document.querySelectorAll('#ems button').forEach(b=>b.classList.toggle('on',b===t))},
+ savePlant(id){const name=$('#fn').value.trim(),iv=parseInt($('#fi').value,10);
+  if(!name)return $('#fe').textContent='Dá um nome à planta.';
+  if(!(iv>=1))return $('#fe').textContent='Indica um intervalo de rega válido.';
+  const d={name,species:$('#fs').value.trim(),shelf:$('#fh').value.trim(),light:$('#fl').value,interval:iv,last:$('#fd').value||today(),notes:$('#fo').value.trim(),emoji:$('#modal').dataset.em||'🌿'};
+  if(id){const p=db.plants.find(x=>x.id===id);Object.assign(p,d)}
+  else db.plants.push({id:uid(),uid:me.id,log:[d.last],created:today(),...d});
+  save();A.close();appView();toast('Planta guardada 🌿')},
+ delPlant(id){if(!confirm('Eliminar esta planta?'))return;db.plants=db.plants.filter(p=>p.id!==id);save();A.close();appView()},
+ water(id){const p=db.plants.find(x=>x.id===id);p.last=today();(p.log??=[]).push(today());save();appView();toast(`💧 ${p.name} regada!`)},
+ waterAll(){mine().filter(p=>info(p).d<=0).forEach(p=>{p.last=today();(p.log??=[]).push(today())});save();appView();toast('Todas as plantas regadas 💧')},
+ avatar(id){me.avatar=id;save();appView()},
+ saveProfile(){const n=$('#pn').value.trim();if(!n)return toast('O nome não pode ficar vazio.');me.name=n;save();appView();toast('Perfil guardado')},
+ async savePass(){const o=$('#po').value,n=$('#pw').value;
+  if(n.length<6)return toast('A nova palavra-passe é demasiado curta.');
+  if(await hash(o,me.salt)!==me.hash)return toast('Palavra-passe atual incorreta.');
+  me.salt=uid();me.hash=await hash(n,me.salt);save();$('#po').value=$('#pw').value='';toast('Palavra-passe alterada')},
+ logout(){S.del('ap_sess');me=null;mode='login';render()},
+ delAcc(){if(!confirm('Eliminar a conta e todas as plantas? Isto não pode ser desfeito.'))return;
+  db.plants=db.plants.filter(p=>p.uid!==me.id);db.users=db.users.filter(u=>u.id!==me.id);save();A.logout()}
+};
+document.addEventListener('click',e=>{const t=e.target.closest('[data-a]');if(!t)return;e.preventDefault();A[t.dataset.a]?.(t.dataset.id,t)});
+render();
+</script>
+</body>
+</html>
